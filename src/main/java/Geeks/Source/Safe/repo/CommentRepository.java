@@ -1,0 +1,16 @@
+package Geeks.Source.Safe.repo;
+
+
+import Geeks.Source.Safe.Entity.CommentEntity;
+import Geeks.Source.Safe.Entity.Enum.PostEnum;
+import Geeks.Source.Safe.Entity.LikeEntity;
+import Geeks.Source.Safe.Entity.PostEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface CommentRepository extends JpaRepository<CommentEntity, UUID> {
+}
+
