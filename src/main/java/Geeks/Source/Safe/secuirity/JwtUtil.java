@@ -1,4 +1,4 @@
-package havebreak.SocialSphere.secuirity;
+package Geeks.Source.Safe.secuirity;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

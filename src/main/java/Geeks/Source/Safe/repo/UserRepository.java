@@ -1,17 +1,15 @@
-package havebreak.SocialSphere.repo;
+package Geeks.Source.Safe.repo;
 
-
-import havebreak.SocialSphere.Entity.UserEntity;
+import Geeks.Source.Safe.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, UUID> {
-    Optional<UserEntity> findByPhoneNumber(String phoneNumber);
-    Optional<UserEntity> findByEmail (String email) ;
+public interface UserRepository extends JpaRepository<User, UUID> {
+    Optional<User> findByEmail (String email) ;
 
-    Optional<UserEntity> findByUserName (String email) ;
+    Optional<User> findByUserName (String email) ;
 
 }
