@@ -38,4 +38,9 @@ public class Group {
 
     @OneToMany(mappedBy = "group")
     private Set<File> files;
+
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Invitation> invitations;
 }

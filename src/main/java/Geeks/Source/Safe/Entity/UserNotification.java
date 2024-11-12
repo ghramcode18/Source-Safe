@@ -2,6 +2,10 @@ package Geeks.Source.Safe.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class UserNotification {
 
     @Id
@@ -30,8 +35,13 @@ public class UserNotification {
     @Column(nullable = false)
     private String message;
 
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
+    @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime updatedAt;
 
     private boolean isRead;
 }

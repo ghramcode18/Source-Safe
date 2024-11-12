@@ -1,7 +1,6 @@
 package Geeks.Source.Safe.Entity;
 
-import Geeks.Source.Safe.Entity.Enum.CheckOutStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import Geeks.Source.Safe.Entity.Enum.InvitationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,30 +10,30 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Builder
 @Entity
-@Table(name = "reservation_history")
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
+@Table(name = "invitations")
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @EntityListeners(AuditingEntityListener.class)
-public class ReservationHistory {
+public class Invitation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "text_file_id")
-    private File textFile;
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
 
     @ManyToOne
-    @JoinColumn(name = "reserved_user_id")
-    @JsonIgnore
-    private User user;
+    @JoinColumn(name = "invited_user_id", nullable = false)
+    private User invitedUser;
 
     @Enumerated(EnumType.STRING)
-    private CheckOutStatus checkOutStatus;
+    @Column(nullable = false)
+    private InvitationStatus status;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,15 +42,6 @@ public class ReservationHistory {
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    private void setTimestamp() {
-        this.createdAt = LocalDateTime.now();
-        this.expirationTime = LocalDateTime.now().plusMinutes(1L);
-    }
-
-    private LocalDateTime expirationTime;
-
-    private LocalDateTime checkOutEndTime;
-
 }
+
+

@@ -2,6 +2,10 @@ package Geeks.Source.Safe.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -12,6 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class FileLog {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,6 +33,11 @@ public class FileLog {
     @Column(nullable = false)
     private String action;  // "Check-In", "Check-Out", etc.
 
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
+    @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime updatedAt;
 }
