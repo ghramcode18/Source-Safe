@@ -1,5 +1,4 @@
 package Geeks.Source.Safe.service;
-
 import Geeks.Source.Safe.Entity.*;
 
 import Geeks.Source.Safe.Entity.Enum.FileStatus;
@@ -12,8 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-@Service
-public class GroupService {
+public class FileService {
 
     @Autowired
     private GroupRepository groupRepository;
@@ -29,45 +27,6 @@ public class GroupService {
 
     @Autowired
     private FileRequestRepository fileRequestRepository;
-
-    // Create a new group
-    public Group createGroup(UUID creatorId, String groupName) {
-        User creator = userRepository.findById(creatorId).orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-        Group group = Group.builder().name(groupName).creator(creator).build();
-        return groupRepository.save(group);
-    }
-
-    // Search for users by name or username
-    public List<User> searchUsers(String searchTerm) {
-        return userRepository.findByUserNameContainingIgnoreCaseOrFullNameContainingIgnoreCase(searchTerm, searchTerm);
-    }
-
-    // Send an invitation to a user
-    public Invitation sendInvitation(UUID groupId, UUID invitedUserId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
-        User invitedUser = userRepository.findById(invitedUserId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        Invitation invitation = Invitation.builder()
-                .group(group)
-                .invitedUser(invitedUser)
-                .status(InvitationStatus.PENDING)
-                .build();
-
-        return invitationRepository.save(invitation);
-    }
-
-    // Accept or reject an invitation
-    public void respondToInvitation(UUID invitationId, InvitationStatus status) {
-        Invitation invitation = invitationRepository.findById(invitationId).orElseThrow(() -> new IllegalArgumentException("Invitation not found"));
-        invitation.setStatus(status);
-        invitationRepository.save(invitation);
-
-        if (status == InvitationStatus.ACCEPTED) {
-            Group group = invitation.getGroup();
-            group.getMembers().add(invitation.getInvitedUser());
-            groupRepository.save(group);
-        }
-    }
     // Add a new file by the creator directly
     public File addFile(UUID groupId, UUID userId, String fileName, String extension, byte[] content) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
@@ -152,5 +111,6 @@ public class GroupService {
 
         return fileRequestRepository.save(request);
     }
-
+    
 }
+

@@ -34,8 +34,11 @@ public class FileRequest {
         @Lob
         private byte[] content;
 
+
         @Enumerated(EnumType.STRING)
         private RequestStatus status = RequestStatus.PENDING;
+
+
     }
 
 
