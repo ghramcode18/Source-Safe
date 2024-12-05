@@ -72,7 +72,7 @@ public class GroupService {
 
 
     // Add a new file by the creator directly
-    public File addFile(UUID groupId, UUID userId, String fileName, String extension, byte[] content) {
+    public File addFile(UUID groupId, UUID userId, String fileName, String extension, String content) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
         User creator = group.getCreator();
 
@@ -102,7 +102,7 @@ public class GroupService {
     }
 
     // Update file by creator
-    public File updateFile(UUID groupId, UUID userId, UUID fileId, String newFileName, byte[] newContent) {
+    public File updateFile(UUID groupId, UUID userId, UUID fileId, String newFileName, String newContent) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
         if (!group.getCreator().getId().equals(userId)) {
             throw new UnauthorizedException("Only the group creator can update files.");
@@ -117,7 +117,7 @@ public class GroupService {
 
 
     // Create a file request by a member
-    public FileRequest requestFileAddition(UUID groupId, UUID memberId, String fileName, byte[] content) {
+    public FileRequest requestFileAddition(UUID groupId, UUID memberId, String fileName, String content) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
         User requester = userRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -159,3 +159,65 @@ public class GroupService {
     }
 
 }
+
+/*
+@Service
+public class GroupService {
+    private final GroupRepository groupRepository;
+    private final FileRequestRepository fileRequestRepository;
+    private final UserRepository userRepository;
+
+    public GroupService(GroupRepository groupRepository, FileRequestRepository fileRequestRepository, UserRepository userRepository) {
+        this.groupRepository = groupRepository;
+        this.fileRequestRepository = fileRequestRepository;
+        this.userRepository = userRepository;
+    }
+
+    // إنشاء طلب إضافة ملف
+    public FileRequest requestFileAddition(UUID groupId, UUID memberId, String fileName, byte[] content) {
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
+        User requester = userRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (group.getCreator().getId().equals(requester.getId())) {
+            throw new IllegalArgumentException("Creator does not need to request file addition.");
+        }
+
+        FileRequest fileRequest = FileRequest.builder()
+                .group(group)
+                .requester(requester)
+                .fileName(fileName)
+                .content(content)
+                .status(RequestStatus.PENDING)
+                .build();
+
+        return fileRequestRepository.save(fileRequest);
+    }
+
+    // قبول أو رفض طلب إضافة ملف
+    public FileRequest handleFileRequest(UUID requestId, UUID approverId, RequestStatus status) {
+        FileRequest fileRequest = fileRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("File request not found"));
+
+        if (fileRequest.getStatus() != RequestStatus.PENDING) {
+            throw new IllegalStateException("File request is already processed");
+        }
+
+        fileRequest.setStatus(status);
+
+        if (status == RequestStatus.APPROVED) {
+            // Logic to add file to the group
+            File newFile = File.builder()
+                    .group(fileRequest.getGroup())
+                    .fileName(fileRequest.getFileName())
+                    .content(fileRequest.getContent())
+                    .extension(fileRequest.getFileName().substring(fileRequest.getFileName().lastIndexOf(".") + 1))
+                    .build();
+
+            fileRepository.save(newFile);
+        }
+
+        return fileRequestRepository.save(fileRequest);
+    }
+}
+
+ */

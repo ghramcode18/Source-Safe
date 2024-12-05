@@ -45,7 +45,7 @@ public class GroupController {
 
     // Add file by creator
     @PostMapping("/{groupId}/add-file")
-    public File addFile(@PathVariable UUID groupId, @RequestParam UUID userId, @RequestParam String fileName, @RequestParam String extension, @RequestParam byte[] content) {
+    public File addFile(@PathVariable UUID groupId, @RequestParam UUID userId, @RequestParam String fileName, @RequestParam String extension, @RequestParam String content) {
         return groupService.addFile(groupId, userId, fileName, extension, content);
     }
 
@@ -57,13 +57,13 @@ public class GroupController {
 
     // Update file by creator
     @PutMapping("/{groupId}/update-file/{fileId}")
-    public File updateFile(@PathVariable UUID groupId, @RequestParam UUID userId, @PathVariable UUID fileId, @RequestParam String newFileName, @RequestParam byte[] newContent) {
+    public File updateFile(@PathVariable UUID groupId, @RequestParam UUID userId, @PathVariable UUID fileId, @RequestParam String newFileName, @RequestParam String newContent) {
         return groupService.updateFile(groupId, userId, fileId, newFileName, newContent);
     }
 
     // Request file addition by member
     @PostMapping("/{groupId}/request-file")
-    public FileRequest requestFileAddition(@PathVariable UUID groupId, @RequestParam UUID memberId, @RequestParam String fileName, @RequestParam byte[] content) {
+    public FileRequest requestFileAddition(@PathVariable UUID groupId, @RequestParam UUID memberId, @RequestParam String fileName, @RequestParam String content) {
         return groupService.requestFileAddition(groupId, memberId, fileName, content);
     }
 

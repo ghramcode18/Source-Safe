@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.File;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,8 +32,7 @@ public class FileRequest {
         @Column(nullable = false)
         private String fileName;
 
-        @Lob
-        private byte[] content;
+        private String content;
 
         @Enumerated(EnumType.STRING)
         private RequestStatus status = RequestStatus.PENDING;

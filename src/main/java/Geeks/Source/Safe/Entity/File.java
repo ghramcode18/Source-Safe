@@ -26,8 +26,7 @@ public class File {
     @Column(nullable = false)
     private String extension;
 
-    @Lob
-    private byte[] content;
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "group_id")
@@ -40,9 +39,14 @@ public class File {
     @Enumerated(EnumType.STRING)
     private FileStatus reservationStatus = FileStatus.FREE;
 
+    @ManyToOne
+    @JoinColumn(name = "reserved_by")
+    private User reservedBy;
     //
     @OneToMany(mappedBy = "textFile")
     @JsonIgnore
     private List<ReservationHistory> reservationHistories;
 
+    @Version
+    private int version; // For optimistic locking
 }
