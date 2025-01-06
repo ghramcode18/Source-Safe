@@ -5,6 +5,7 @@ import Geeks.Source.Safe.Entity.Enum.InvitationStatus;
 import Geeks.Source.Safe.Entity.Enum.RequestStatus;
 import Geeks.Source.Safe.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,13 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
+
+    // Endpoint to add a new user
+    @PostMapping("/adduser")
+    public ResponseEntity<User> addUser(@RequestBody User userRequest) {
+        User createdUser = groupService.addUser(userRequest);
+        return ResponseEntity.ok(createdUser);
+    }
 
     @PostMapping("/create")
     public Group createGroup(@RequestParam UUID creatorId, @RequestParam String groupName) {

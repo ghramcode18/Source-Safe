@@ -25,7 +25,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String userName;
 
-    @JsonIgnore
     @Column(nullable = false)
     private String password;
 

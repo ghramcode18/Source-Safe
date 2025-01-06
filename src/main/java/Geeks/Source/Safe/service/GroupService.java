@@ -31,6 +31,25 @@ public class GroupService {
     @Autowired
     private FileRequestRepository fileRequestRepository;
 
+    public User addUser(User userRequest) {
+        System.out.println(userRequest.toString());
+        // Additional validation logic can go here if needed
+        if (userRequest.getUserName() == null || userRequest.getUserName().isEmpty()) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+
+        if (userRequest.getEmail() == null || userRequest.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("Email is required.");
+        }
+
+        if (userRequest.getPassword() == null || userRequest.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password is required.");
+        }
+
+        // Save the new user to the database
+        return userRepository.save(userRequest);
+    }
+
     // Create a new group
     public Group createGroup(UUID creatorId, String groupName) {
         User creator = userRepository.findById(creatorId).orElseThrow(() -> new IllegalArgumentException("Creator not found"));

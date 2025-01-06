@@ -32,61 +32,6 @@ public class FileService {
             this.userLogRepository = userLogRepository;
         }
 
-//'
-//        // حجز ملف (Check-Out)
-//        public File checkOutFile(UUID fileId, UUID userId) {
-//            File file = fileRepository.findById(fileId)
-//                    .orElseThrow(() -> new IllegalArgumentException("File not found"));
-//
-//            if (file.getReservationStatus() == FileStatus.RESERVED) {
-//                throw new IllegalStateException("File is already reserved");
-//            }
-//
-//            User user = userRepository.findById(userId)
-//                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//
-//            file.setReservationStatus(FileStatus.RESERVED);
-//            file.setReservedBy(user);
-//
-//            // تسجيل العملية في FileLog
-//            saveFileLog(file, user, "Check-Out");
-//
-//            return fileRepository.save(file);
-//        }
-//
-//        // إرجاع ملف (Check-In)
-//        public File checkInFile(UUID fileId, UUID userId, byte[] updatedContent) throws IllegalAccessException {
-//            File file = fileRepository.findById(fileId)
-//                    .orElseThrow(() -> new IllegalArgumentException("File not found"));
-//
-//            if (file.getReservationStatus() == FileStatus.FREE) {
-//                throw new IllegalStateException("File is not reserved");
-//            }
-//
-//            if (!file.getReservedBy().getId().equals(userId)) {
-//                throw new IllegalAccessException("You are not authorized to check in this file");
-//            }
-//
-//            file.setContent(updatedContent);
-//            file.setReservationStatus(FileStatus.FREE);
-//            file.setReservedBy(null);
-//
-//            // تسجيل العملية في FileLog
-//            saveFileLog(file, userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found")), "Check-In");
-//
-//            return fileRepository.save(file);
-//        }
-//
-//        private void saveFileLog(File file, User user, String action) {
-//            FileLog log = FileLog.builder()
-//                    .file(file)
-//                    .user(user)
-//                    .action(action)
-//                    .build();
-//
-//            fileLogRepository.save(log);
-//        }
-
     @Transactional
     public List<File> checkInFiles(List<UUID> fileIds, UUID userId, List<File> modifiedFiles) {
         User user = userRepository.findById(userId)
