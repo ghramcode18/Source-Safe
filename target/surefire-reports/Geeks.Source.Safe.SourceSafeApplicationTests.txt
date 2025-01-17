@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: Geeks.Source.Safe.SourceSafeApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.454 s -- in Geeks.Source.Safe.SourceSafeApplicationTests
