@@ -5,4 +5,4 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17.0.1-jdk-slim
 COPY --from=build /target/Source-Safe-0.0.1-SNAPSHOT.jar Source-Safe.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","language-center-app.jar"]
+ENTRYPOINT ["java","-jar","Source-Safe.jar"]
