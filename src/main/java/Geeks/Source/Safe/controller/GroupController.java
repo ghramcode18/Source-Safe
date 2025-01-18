@@ -3,11 +3,13 @@ package Geeks.Source.Safe.controller;
 import Geeks.Source.Safe.Entity.*;
 import Geeks.Source.Safe.Entity.Enum.InvitationStatus;
 import Geeks.Source.Safe.Entity.Enum.RequestStatus;
+import Geeks.Source.Safe.security.JwtUtil;
 import Geeks.Source.Safe.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.UUID;
@@ -19,22 +21,62 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    JwtUtil jwtUtil;
 
     // Endpoint to add a new user
     @PostMapping("/adduser")
-    public ResponseEntity<User> addUser(@RequestBody User userRequest) {
-        User createdUser = groupService.addUser(userRequest);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<String> addUser(@RequestHeader("Authorization") String token, @RequestBody User userRequest) {
+        // Remove "Bearer " prefix if present
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        // Extract roles from the token
+        List<String> roles = jwtUtil.extractRoles(token);
+
+        // Check if the user has the "ADMIN" role
+        if (!roles.contains("ADMIN")) {
+            return ResponseEntity.status(403).body("You do not have permission to add a user.");
+        }
+
+        // If the user has "ADMIN" role, proceed with adding the user
+        String response = groupService.addUser(userRequest);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/create")
+    public String createGroup(@RequestHeader("Authorization") String token, @RequestParam String groupName) {
+        // Remove "Bearer " prefix if present
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        // Extract the username from the token
+        String username = jwtUtil.extractUsername(token);
+        if (jwtUtil.isTokenExpired(token)) {
+            return "Please login again";  // Token is expired, ask the user to log in again
+        }
+        // Proceed to create the group if the token is valid
+        return groupService.createGroup(username, groupName);
     }
 
-    @PostMapping("/create")
-    public Group createGroup(@RequestParam UUID creatorId, @RequestParam String groupName) {
-        return groupService.createGroup(creatorId, groupName);
-    }
 
 
     @GetMapping("/search-users")
-    public List<User> searchUsers(@RequestParam String searchTerm) {
+    public List<User> searchUsers(@RequestHeader("Authorization") String token,@RequestParam String searchTerm) {
+// Remove "Bearer " prefix if present
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        // Extract the username from the token
+        String username = jwtUtil.extractUsername(token);
+
+        // Check if the token is expired
+        if (jwtUtil.isTokenExpired(token)) {
+            ArrayList list = new ArrayList<String>();
+            list.add("Please login again");
+            return list;
+        }
         return groupService.searchUsers(searchTerm);
     }
 

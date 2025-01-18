@@ -26,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/auth/login", "/auth/register","/logs","/api/v1/groups","/files").permitAll() // Use requestMatchers instead of antMatchers
+                .requestMatchers("/auth/**","/logs/**","/api/v1/groups/**","/files/**").permitAll() // Use requestMatchers instead of antMatchers
                 .anyRequest().authenticated();
         return http.build();
     }
