@@ -50,14 +50,18 @@ public class GroupController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
+
         // Extract the username from the token
         String username = jwtUtil.extractUsername(token);
+
         if (jwtUtil.isTokenExpired(token)) {
             return "Please login again";  // Token is expired, ask the user to log in again
         }
+
         // Proceed to create the group if the token is valid
         return groupService.createGroup(username, groupName);
     }
+
 
 
 

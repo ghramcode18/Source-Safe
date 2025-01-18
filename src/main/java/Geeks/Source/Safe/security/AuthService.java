@@ -56,7 +56,7 @@ public class AuthService {
 
     // Refresh the access token using a valid refresh token
     public String refreshAccessToken(String refreshToken) {
-        if (jwtUtil.isTokenValid(refreshToken, null)) {
+        if (jwtUtil.isTokenValid(refreshToken)) {
             String username = jwtUtil.extractUsername(refreshToken);
             Optional<User> userOptional = userRepository.findByUserName(username);
 
