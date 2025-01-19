@@ -46,19 +46,10 @@ public class GroupController {
     }
     @PostMapping("/create")
     public String createGroup(@RequestHeader("Authorization") String token, @RequestParam String groupName) {
-        // Remove "Bearer " prefix if present
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
-
-        // Extract the username from the token
         String username = jwtUtil.extractUsername(token);
-
-        if (jwtUtil.isTokenExpired(token)) {
-            return "Please login again";  // Token is expired, ask the user to log in again
-        }
-
-        // Proceed to create the group if the token is valid
         return groupService.createGroup(username, groupName);
     }
 
@@ -67,26 +58,21 @@ public class GroupController {
 
     @GetMapping("/search-users")
     public List<User> searchUsers(@RequestHeader("Authorization") String token,@RequestParam String searchTerm) {
-// Remove "Bearer " prefix if present
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
-        // Extract the username from the token
-        String username = jwtUtil.extractUsername(token);
-
-        // Check if the token is expired
-        if (jwtUtil.isTokenExpired(token)) {
-            ArrayList list = new ArrayList<String>();
-            list.add("Please login again");
-            return list;
-        }
         return groupService.searchUsers(searchTerm);
     }
 
 
-        @PostMapping("/{groupId}/invite")
-        public Invitation sendInvitation(@PathVariable UUID groupId, @RequestParam UUID invitedUserId) {
+    @GetMapping("/get-users")
+    public List<User> getAllUsers(@RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        return groupService.getUsersInSameGroupAsUser(username);
+    }
+
+    @PostMapping("/invite")
+        public Invitation sendInvitation(@RequestHeader("Authorization") String token,@RequestParam UUID groupId, @RequestParam UUID invitedUserId) {
             return groupService.sendInvitation(groupId, invitedUserId);
         }
 

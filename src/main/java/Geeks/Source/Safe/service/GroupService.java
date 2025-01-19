@@ -5,16 +5,15 @@ import Geeks.Source.Safe.Entity.*;
 import Geeks.Source.Safe.Entity.Enum.FileStatus;
 import Geeks.Source.Safe.Entity.Enum.InvitationStatus;
 import Geeks.Source.Safe.Entity.Enum.RequestStatus;
-import Geeks.Source.Safe.Entity.Enum.Role;
 import Geeks.Source.Safe.exceptions.UnauthorizedException;
 import Geeks.Source.Safe.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.RecursiveTask;
 
 @Service
 public class GroupService {
@@ -85,6 +84,22 @@ public class GroupService {
         return userRepository.findByUserNameContainingIgnoreCaseOrFullNameContainingIgnoreCase(searchTerm, searchTerm);
     }
 
+    public List<User> getUsersInSameGroupAsUser(String username) {
+
+        Optional<User> user= userRepository.findByUserName(username);
+        // Step 1: Find the groups where the user is a member
+        List<UUID> groupIds = groupRepository.findGroupsWhereUserIsMember(user.get().getId());
+
+        if (groupIds.isEmpty()) {
+            return new ArrayList<>();  // No groups found for the user
+        }
+
+        // Step 2: Find all users in those groups
+        List<User>users= userRepository.findAllById(groupRepository.findUsersInGroups(groupIds));
+        return users;
+    }
+
+
     // Send an invitation to a user
     public Invitation sendInvitation(UUID groupId, UUID invitedUserId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
@@ -98,6 +113,7 @@ public class GroupService {
 
         return invitationRepository.save(invitation);
     }
+
 
     // Accept or reject an invitation
     public void respondToInvitation(UUID invitationId, InvitationStatus status) {
