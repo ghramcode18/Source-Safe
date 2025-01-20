@@ -10,7 +10,9 @@ import Geeks.Source.Safe.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,36 +33,72 @@ public class GroupService {
     @Autowired
     private FileRequestRepository fileRequestRepository;
 
-    public User addUser(User userRequest) {
+    public String addUser(User userRequest) {
         System.out.println(userRequest.toString());
         // Additional validation logic can go here if needed
         if (userRequest.getUserName() == null || userRequest.getUserName().isEmpty()) {
-            throw new IllegalArgumentException("Username is required.");
+            return "Username is required.";
         }
 
         if (userRequest.getEmail() == null || userRequest.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("Email is required.");
+            return "Email is required.";
         }
 
         if (userRequest.getPassword() == null || userRequest.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("Password is required.");
+            return "Password is required.";
+        }
+
+        // Check if the email already exists
+        Optional<User> existingUserByEmail = userRepository.findByEmail(userRequest.getEmail());
+        if (existingUserByEmail.equals(null)) {
+            return "Email is already taken, Please try again.";
+        }
+
+        // Check if the username already exists
+        Optional<User> existingUserByUserName = userRepository.findByUserName(userRequest.getUserName());
+        if (existingUserByUserName.equals(null)) {
+            return "Username is already taken, Please try again.";
         }
 
         // Save the new user to the database
-        return userRepository.save(userRequest);
+        userRepository.save(userRequest);
+
+        return "The user added successfully " + userRequest.getUserName();
     }
 
     // Create a new group
-    public Group createGroup(UUID creatorId, String groupName) {
-        User creator = userRepository.findById(creatorId).orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-        Group group = Group.builder().name(groupName).creator(creator).build();
-        return groupRepository.save(group);
+    public String createGroup(String username, String groupName) {
+        User creator = userRepository.findByUserName(username).orElseThrow(() -> new IllegalArgumentException("Creator not found"));
+        Group group1 = groupRepository.findByName(groupName);
+        if (group1==null)
+        {
+            Group group = Group.builder().name(groupName).creator(creator).build();
+            groupRepository.save(group);
+            return  "the group create successfully "+ groupName;
+        }
+        return "the group name is already taken, please try again";
     }
 
     // Search for users by name or username
     public List<User> searchUsers(String searchTerm) {
         return userRepository.findByUserNameContainingIgnoreCaseOrFullNameContainingIgnoreCase(searchTerm, searchTerm);
     }
+
+    public List<User> getUsersInSameGroupAsUser(String username) {
+
+        Optional<User> user= userRepository.findByUserName(username);
+        // Step 1: Find the groups where the user is a member
+        List<UUID> groupIds = groupRepository.findGroupsWhereUserIsMember(user.get().getId());
+
+        if (groupIds.isEmpty()) {
+            return new ArrayList<>();  // No groups found for the user
+        }
+
+        // Step 2: Find all users in those groups
+        List<User>users= userRepository.findAllById(groupRepository.findUsersInGroups(groupIds));
+        return users;
+    }
+
 
     // Send an invitation to a user
     public Invitation sendInvitation(UUID groupId, UUID invitedUserId) {
@@ -75,6 +113,7 @@ public class GroupService {
 
         return invitationRepository.save(invitation);
     }
+
 
     // Accept or reject an invitation
     public void respondToInvitation(UUID invitationId, InvitationStatus status) {
@@ -101,8 +140,8 @@ public class GroupService {
 
         File file = File.builder()
                 .fileName(fileName)
-                .extension(extension)
-                .content(content)
+//                .extension(extension)
+//                .content(content)
                 .group(group)
                 .reservationStatus(FileStatus.FREE)
                 .build();
@@ -129,7 +168,7 @@ public class GroupService {
 
         File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found"));
         file.setFileName(newFileName);
-        file.setContent(newContent);
+//        file.setContent(newContent);
         return fileRepository.save(file);
     }
 
@@ -166,8 +205,8 @@ public class GroupService {
         if (status == RequestStatus.APPROVED) {
             File file = File.builder()
                     .fileName(request.getFileName())
-                    .content(request.getContent())
-                    .extension("test")
+//                    .content(request.getContent())
+//                    .extension("test")
                     .group(request.getGroup())
                     .reservationStatus(FileStatus.FREE)
                     .build();

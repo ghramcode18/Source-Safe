@@ -26,8 +26,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/auth/login", "/auth/register","/logs","/api/v1/groups","/files").permitAll() // Use requestMatchers instead of antMatchers
-                .anyRequest().authenticated();
+                .requestMatchers("/auth/**","/logs/**","/api/v1/groups/**","/files/**").permitAll() // Use requestMatchers instead of antMatchers
+                .anyRequest().authenticated()
+                .and()
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

@@ -28,13 +28,11 @@ public class AuthService {
     // Register a new user
     public String register(User user) {
         // Check if the username already exists
-        if (userRepository.existsByUserName(user.getUserName())) {
-            return "Username is already taken";
+        if (userRepository.existsByUserName(user.getUserName()) ||userRepository.existsByEmail(user.getEmail())) {
+            return "Username or Email is already taken";
         }
-
         // Encrypt the user's password before saving it
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         // Save the user in the repository
         userRepository.save(user);
         return "User registered successfully";
@@ -58,7 +56,7 @@ public class AuthService {
 
     // Refresh the access token using a valid refresh token
     public String refreshAccessToken(String refreshToken) {
-        if (jwtUtil.isTokenValid(refreshToken, null)) {
+        if (jwtUtil.isTokenValid(refreshToken)) {
             String username = jwtUtil.extractUsername(refreshToken);
             Optional<User> userOptional = userRepository.findByUserName(username);
 

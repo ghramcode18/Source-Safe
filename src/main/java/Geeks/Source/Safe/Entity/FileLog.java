@@ -32,7 +32,7 @@
         private User user;
 
         @Column(nullable = false)
-        private String action;  // "Check-In", "Check-Out", etc.
+        private String action;
 
         @CreatedDate
         @Temporal(TemporalType.TIMESTAMP)
@@ -41,4 +41,11 @@
         @LastModifiedDate
         @Temporal(TemporalType.TIMESTAMP)
         private LocalDateTime updatedAt;
+
+        // Constructors, getters, and setters
+        public FileLog(File file, User user, String actionType) {
+            this.file = file;
+            this.user = user;
+            this.action = actionType;
+        }
     }

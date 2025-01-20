@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -31,6 +32,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getUserName())
                 .setIssuedAt(new Date())
+                .claim("roles", List.of(user.getRole().name()))  // Store roles as a list
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
@@ -40,10 +42,12 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getUserName())
                 .setIssuedAt(new Date())
+                .claim("roles", List.of(user.getRole().name()))  // Store roles as a list
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_REFRESH_EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -62,21 +66,21 @@ public class JwtUtil {
     // Extract all claims from Token
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(getSigningKey())  // Use decoded secret key
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
     // Check if Token is expired
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     // Validate Token
-    public boolean isTokenValid(String token, User user) {
+    public boolean isTokenValid(String token) {
         final String username = extractUsername(token);
-        return (username.equals(user.getUserName()) && !isTokenExpired(token));
+        return (!isTokenExpired(token));
     }
 
     // Interface for extracting claim
@@ -84,4 +88,12 @@ public class JwtUtil {
     private interface ClaimsResolver<T> {
         T resolve(Claims claims);
     }
+
+    // Extract roles as List<String>
+    public List<String> extractRoles(String token) {
+        Claims claims = extractAllClaims(token);
+        // Get roles as List from token, assuming roles are stored as a list
+        return claims.get("roles", List.class);
+    }
+
 }
