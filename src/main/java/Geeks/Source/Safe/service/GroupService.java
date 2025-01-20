@@ -140,8 +140,8 @@ public class GroupService {
 
         File file = File.builder()
                 .fileName(fileName)
-                .extension(extension)
-                .content(content)
+//                .extension(extension)
+//                .content(content)
                 .group(group)
                 .reservationStatus(FileStatus.FREE)
                 .build();
@@ -168,7 +168,7 @@ public class GroupService {
 
         File file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalArgumentException("File not found"));
         file.setFileName(newFileName);
-        file.setContent(newContent);
+//        file.setContent(newContent);
         return fileRepository.save(file);
     }
 
@@ -205,8 +205,8 @@ public class GroupService {
         if (status == RequestStatus.APPROVED) {
             File file = File.builder()
                     .fileName(request.getFileName())
-                    .content(request.getContent())
-                    .extension("test")
+//                    .content(request.getContent())
+//                    .extension("test")
                     .group(request.getGroup())
                     .reservationStatus(FileStatus.FREE)
                     .build();

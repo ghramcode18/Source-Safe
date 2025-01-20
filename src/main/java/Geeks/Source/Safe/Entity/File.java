@@ -16,17 +16,17 @@ import java.util.UUID;
 @Setter
 @Getter
 public class File {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "file_name")
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
-    private String extension;
 
-    private String content;
+    @Column(name = "file_path", nullable = false)
+    private String filePath; // The path to the file on the server
 
     @ManyToOne
     @JoinColumn(name = "group_id")
@@ -42,11 +42,12 @@ public class File {
     @ManyToOne
     @JoinColumn(name = "reserved_by")
     private User reservedBy;
-    //
+
     @OneToMany(mappedBy = "textFile")
     @JsonIgnore
     private List<ReservationHistory> reservationHistories;
 
     @Version
-    private int version; // For optimistic locking
+    private int version;
+
 }

@@ -9,9 +9,16 @@ import Geeks.Source.Safe.repo.FileLogRepository;
 import Geeks.Source.Safe.repo.TextFileRepository;
 import Geeks.Source.Safe.repo.UserLogRepository;
 import Geeks.Source.Safe.repo.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,108 +39,105 @@ public class FileService {
             this.userLogRepository = userLogRepository;
         }
 
+    // File storage location (update this path based on your server)
+    private final String fileStorageLocation = "/path/to/file/storage/";
+
+
+    private String storeFileOnDisk(MultipartFile file) throws IOException {
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(fileStorageLocation, fileName);
+        Files.createDirectories(filePath.getParent());
+        try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+            fos.write(file.getBytes());
+        }
+        return filePath.toString();
+    }
+
     @Transactional
-    public List<File> checkInFiles(List<UUID> fileIds, UUID userId, List<File> modifiedFiles) {
+    public List<File> checkInFiles(List<UUID> fileIds, UUID userId, List<MultipartFile> modifiedFiles) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<File> files = fileRepository.findAllById(fileIds);
 
-        // Validate: Ensure all files are free (not checked out)
+        // Ensure all files are free before check-in
         for (File file : files) {
             if (!FileStatus.FREE.equals(file.getReservationStatus())) {
                 throw new IllegalStateException("One or more files are not Free.");
             }
         }
 
-        // Check in all files (reserve them for the user)
+        // Process files
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
-            File modifiedFile = modifiedFiles.get(i); // Get the modified file content
+            MultipartFile modifiedFile = modifiedFiles.get(i);
 
-            // Reserve the file for the user
+            // Mark the file as reserved and store the file
             file.setReservationStatus(FileStatus.RESERVED);
-            file.setReservedBy(user); // Mark the user as the one who reserved the file
+            file.setReservedBy(user);
+            String filePath = storeFileOnDisk(modifiedFile);
+            file.setFilePath(filePath);
 
-            // Replace the file content with the modified content
-            file.setContent(modifiedFile.getContent()); // Update content to the modified file
-
-            // Save the updated file state
+            // Save updated file state
             fileRepository.save(file);
 
-            // Log the action (Check-In)
-            FileLog log = FileLog.builder()
-                    .file(file)
-                    .user(user)
-                    .action("Check-In")
-                    .build();
+            // Log the check-in action
+            FileLog log = new FileLog(file, user, "Check-in");
             fileLogRepository.save(log);
-
-            // Log the user (Check-In)
-            UserLog ulog = UserLog.builder()
-                    .user(user)
-                    .action("Check-In")
-                    .group(file.getGroup())
-                    .build();
-            userLogRepository.save(ulog);
         }
 
         return files;
     }
+
+    // FileService.java
+    public File getFileById(UUID fileId) {
+        return fileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found"));
+    }
+
     @Transactional
-    public List<File> checkOutFiles(List<UUID> fileIds, UUID userId, List<File> modifiedFiles) {
+    public List<File> checkOutFiles(List<UUID> fileIds, UUID userId, List<MultipartFile> uploadedFiles) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<File> files = fileRepository.findAllById(fileIds);
 
-        // Validate: Ensure each file is reserved and checked out by the user
+        // Validate user reservation
         for (File file : files) {
-            if (!FileStatus.RESERVED.equals(file.getReservationStatus()) || !file.getReservedBy().getId().equals(userId)) {
-                throw new IllegalStateException("File is either not reserved by the user or already checked out.");
+            if (file.getReservationStatus() != FileStatus.RESERVED || !file.getReservedBy().equals(user)) {
+                throw new IllegalStateException("This file is not reserved by you.");
             }
         }
 
-        // Check out all files (replace with modified content and set status to free)
+        // Process files for check-out (upload and versioning)
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
-            File modifiedFile = modifiedFiles.get(i); // Get the modified file content
+            MultipartFile uploadedFile = uploadedFiles.get(i);
 
-            if (modifiedFile.getContent() != null) {
-                // Ensure the content is updated properly, could be a path or byte array
-                file.setContent(modifiedFile.getContent()); // Update content to the modified file
-            } else {
-                throw new IllegalArgumentException("Modified file content is missing.");
+            // Compare contents (skip if unchanged)
+            boolean contentChanged = !Files.readAllBytes(Paths.get(file.getFilePath())).equals(uploadedFile.getBytes());
+
+            if (contentChanged) {
+                // Store the uploaded file and increment version
+                String filePath = storeFileOnDisk(uploadedFile);
+                file.setFilePath(filePath);
+                file.setVersion(file.getVersion() + 1); // Increment version
             }
 
-            // Change file status back to FREE (making it available for others)
+            // Set file status to FREE
             file.setReservationStatus(FileStatus.FREE);
-            file.setReservedBy(null); // Remove the user reservation
+            file.setReservedBy(null); // Remove reservation
 
-            // Save the updated file (Optimistic Locking will automatically handle version conflicts)
+            // Save updated file state
             fileRepository.save(file);
 
-            // Log the action (Check-Out)
-            FileLog log = FileLog.builder()
-                    .file(file)
-                    .user(user)
-                    .action("Check-Out")
-                    .build();
+            // Log the check-out action
+            FileLog log = new FileLog(file, user, "Check-out");
             fileLogRepository.save(log);
-
-            // Log the action (Check-Out)
-            UserLog ulog = UserLog.builder()
-                    .user(user)
-                    .group(file.getGroup())
-                    .action("Check-Out")
-                    .build();
-            userLogRepository.save(ulog);
         }
-
 
         return files;
     }
-
     @Transactional
     public File reserveFile(UUID fileId, UUID userId) {
         File file = fileRepository.findById(fileId)
