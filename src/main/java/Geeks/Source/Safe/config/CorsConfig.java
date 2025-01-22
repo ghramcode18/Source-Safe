@@ -1,4 +1,4 @@
-package Geeks.languagecenterapp.config;
+package Geeks.Source.Safe.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         .allowedOrigins("http://localhost:5173", "https://teal-gorilla-464304.hostingersite.com")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .exposedHeaders("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me")
+                        .exposedHeaders("Access-Control-Allow-Headers",
+                                "Content-Type, Accept, X-Requested-With, remember-me")
                         .allowCredentials(true);
             }
         };

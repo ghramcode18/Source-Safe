@@ -1,4 +1,5 @@
-package havebreak.SocialSphere.DTO;
+package Geeks.Source.Safe.DTO;
+
 import lombok.*;
 
 import java.util.UUID;
