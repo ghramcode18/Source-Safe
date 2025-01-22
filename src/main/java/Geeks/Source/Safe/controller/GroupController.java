@@ -71,6 +71,15 @@ public class GroupController {
         return groupService.getUsersInSameGroupAsUser(username);
     }
 
+    @GetMapping("/get-groups")
+    public List<Group> getGroupsWhereUserIsMember(@RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        return groupService.getGroupsWhereUserIsMember(username);
+    }
+
     @PostMapping("/invite")
         public Invitation sendInvitation(@RequestHeader("Authorization") String token,@RequestParam UUID groupId, @RequestParam UUID invitedUserId) {
             return groupService.sendInvitation(groupId, invitedUserId);

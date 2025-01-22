@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>API Tester</title>
+</head>
+<body>
+<h1>Test File Download API</h1>
+
+<!-- Form to check-in the file -->
+<form action="/files/check-in" method="post">
+  <label for="fileId">File ID:</label>
+  <input
+          type="text"
+          id="fileId"
+          name="fileId"
+          placeholder="Enter File ID"
+          required
+  />
+  <br /><br />
+
+  <label for="token">Authorization Token:</label>
+  <input
+          type="text"
+          id="token"
+          name="token"
+          placeholder="Enter Bearer Token"
+          required
+  />
+  <br /><br />
+
+</form>
+
+<!-- After the check-in, show the download link -->
+<div th:if="${fileId != null}">
+  <h3>File reserved successfully!</h3>
+  <p>Click below to download the file:</p>
+  <a th:href="@{/files/download(fileId=${fileId}, token=${token})}" target="_blank">
+    Download File
+  </a>
+</div>
+</body>
+</html>

@@ -1,4 +1,5 @@
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/DTO/AuthRequest.java
+/home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/DTO/FileUploadDTO.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/DTO/JwtResponseDTO.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/DTO/LoginRequestDTO.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/DTO/ModifiedFilesRequest.java
@@ -20,6 +21,7 @@
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/Entity/UserNotification.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/SourceSafeApplication.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/config/CorsConfig.java
+/home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/controller/ApiTesterController.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/controller/AuthController.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/controller/FileController.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/controller/GroupController.java
@@ -35,6 +37,7 @@
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/repo/UserNotificationRepository.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/repo/UserRepository.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/security/AuthService.java
+/home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/security/JwtAuthenticationFilter.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/security/JwtUtil.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/security/KeyGenerator.java
 /home/ghram/Documents/Github/Source-Safe/src/main/java/Geeks/Source/Safe/security/SecurityConfig.java

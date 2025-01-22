@@ -69,7 +69,7 @@ public class GroupService {
     // Create a new group
     public String createGroup(String username, String groupName) {
         User creator = userRepository.findByUserName(username).orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-        Group group1 = groupRepository.findByName(groupName);
+        Group group1 = groupRepository.findByName(groupName).get();
         if (group1==null)
         {
             Group group = Group.builder().name(groupName).creator(creator).build();
@@ -82,6 +82,14 @@ public class GroupService {
     // Search for users by name or username
     public List<User> searchUsers(String searchTerm) {
         return userRepository.findByUserNameContainingIgnoreCaseOrFullNameContainingIgnoreCase(searchTerm, searchTerm);
+    }
+
+    public List <Group> getGroupsWhereUserIsMember(String username){
+        Optional<User> user= userRepository.findByUserName(username);
+        List<UUID> groupIds = groupRepository.findGroupsWhereUserIsMember(user.get().getId());
+        List<Group>groups = groupRepository.findAllById(groupIds);
+        return groups;
+
     }
 
     public List<User> getUsersInSameGroupAsUser(String username) {
@@ -217,65 +225,3 @@ public class GroupService {
     }
 
 }
-
-/*
-@Service
-public class GroupService {
-    private final GroupRepository groupRepository;
-    private final FileRequestRepository fileRequestRepository;
-    private final UserRepository userRepository;
-
-    public GroupService(GroupRepository groupRepository, FileRequestRepository fileRequestRepository, UserRepository userRepository) {
-        this.groupRepository = groupRepository;
-        this.fileRequestRepository = fileRequestRepository;
-        this.userRepository = userRepository;
-    }
-
-    // إنشاء طلب إضافة ملف
-    public FileRequest requestFileAddition(UUID groupId, UUID memberId, String fileName, byte[] content) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
-        User requester = userRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        if (group.getCreator().getId().equals(requester.getId())) {
-            throw new IllegalArgumentException("Creator does not need to request file addition.");
-        }
-
-        FileRequest fileRequest = FileRequest.builder()
-                .group(group)
-                .requester(requester)
-                .fileName(fileName)
-                .content(content)
-                .status(RequestStatus.PENDING)
-                .build();
-
-        return fileRequestRepository.save(fileRequest);
-    }
-
-    // قبول أو رفض طلب إضافة ملف
-    public FileRequest handleFileRequest(UUID requestId, UUID approverId, RequestStatus status) {
-        FileRequest fileRequest = fileRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("File request not found"));
-
-        if (fileRequest.getStatus() != RequestStatus.PENDING) {
-            throw new IllegalStateException("File request is already processed");
-        }
-
-        fileRequest.setStatus(status);
-
-        if (status == RequestStatus.APPROVED) {
-            // Logic to add file to the group
-            File newFile = File.builder()
-                    .group(fileRequest.getGroup())
-                    .fileName(fileRequest.getFileName())
-                    .content(fileRequest.getContent())
-                    .extension(fileRequest.getFileName().substring(fileRequest.getFileName().lastIndexOf(".") + 1))
-                    .build();
-
-            fileRepository.save(newFile);
-        }
-
-        return fileRequestRepository.save(fileRequest);
-    }
-}
-
- */
