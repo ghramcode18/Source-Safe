@@ -17,6 +17,7 @@
     @NoArgsConstructor
     @Setter
     @Getter
+    @Data
     @EntityListeners(AuditingEntityListener.class)
     public class FileLog {
         @Id

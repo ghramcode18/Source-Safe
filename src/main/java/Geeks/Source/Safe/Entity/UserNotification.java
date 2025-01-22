@@ -17,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
+@Data
 @EntityListeners(AuditingEntityListener.class)
 public class UserNotification {
 

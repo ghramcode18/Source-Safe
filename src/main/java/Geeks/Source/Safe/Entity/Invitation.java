@@ -17,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 @EntityListeners(AuditingEntityListener.class)
 public class Invitation {
     @Id
