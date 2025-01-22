@@ -100,6 +100,35 @@ public class FileService {
     }
 
     @Transactional
+    public ResponseEntity<String> checkInFilesAndRedirect(List<UUID> fileIds, String username, String token) throws IOException {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        for (UUID fileId : fileIds) {
+            File file = fileRepository.findById(fileId)
+                    .orElseThrow(() -> new IllegalArgumentException("File not found"));
+
+            if (!FileStatus.FREE.equals(file.getReservationStatus())) {
+                throw new IllegalStateException("File " + fileId + " is already reserved.");
+            }
+
+            file.setReservationStatus(FileStatus.RESERVED);
+            file.setReservedBy(user);
+            fileRepository.save(file);
+
+            FileLog log = new FileLog(file, user, "Check-in");
+            fileLogRepository.save(log);
+        }
+
+        // Redirect the user to the download endpoint
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, "/files/download?fileIds=" + String.join(",", fileIds.toString()) + "&token=" + token)
+                .body("Files reserved successfully! You will be redirected to download them.");
+    }
+
+
+    @Transactional
     public ResponseEntity<String> checkInFileAndRedirect(UUID fileId, String username, String token) throws IOException {
         // Fetch user and file (same as before)
         User user = userRepository.findByUserName(username)

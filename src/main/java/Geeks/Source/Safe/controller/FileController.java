@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 @RestController
@@ -44,38 +45,38 @@ public class FileController {
 
     // Check-in and Download the File
     @PostMapping("/check-in")
-    public ResponseEntity<String> checkInFileAndDownload(@RequestParam("fileId") UUID fileId,
-                                                         @RequestParam("token") String token) throws IOException {
+    public ResponseEntity<String> checkInFilesAndDownload(@RequestParam("fileIds") List<UUID> fileIds,
+                                                          @RequestParam("token") String token) throws IOException {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
         String username = jwtUtil.extractUsername(token);
-        return fileService.checkInFileAndRedirect(fileId, username, token);
+        return fileService.checkInFilesAndRedirect(fileIds, username, token);
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam("fileId") UUID fileId,
-                                                 @RequestParam("token") String token) throws IOException {
-        // Fetch the file by ID
-        File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("File not found"));
-
-        // Ensure the file exists on the server
-        java.io.File fileToDownload = new java.io.File(file.getFilePath());
-        if (!fileToDownload.exists()) {
-            throw new IllegalArgumentException("File not found on the server.");
-        }
-
-        // Serve the file as a resource
-        Resource resource = new FileSystemResource(fileToDownload);
+    public ResponseEntity<List<Resource>> downloadFiles(@RequestParam("fileIds") List<UUID> fileIds,
+                                                        @RequestParam("token") String token) throws IOException {
+        List<Resource> resources = new ArrayList<>();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=" + file.getFileName());
+        headers.add("Content-Disposition", "attachment");
+
+        for (UUID fileId : fileIds) {
+            File file = fileRepository.findById(fileId)
+                    .orElseThrow(() -> new IllegalArgumentException("File not found"));
+
+            java.io.File fileToDownload = new java.io.File(file.getFilePath());
+            if (!fileToDownload.exists()) {
+                throw new IllegalArgumentException("File not found on the server.");
+            }
+
+            resources.add(new FileSystemResource(fileToDownload));
+        }
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(fileToDownload.length())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(resources);
     }
 
     // Checkout and Upload the Modified File
