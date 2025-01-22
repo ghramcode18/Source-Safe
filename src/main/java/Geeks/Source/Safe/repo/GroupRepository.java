@@ -10,8 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
     public interface GroupRepository extends JpaRepository<Group, UUID> {
-        <Optional> Group findByName(String groupName);
-        // Custom query to find all users in the groups where the user is a member
+            Optional<Group> findByName(String groupName);
 
             @Query(value = "SELECT gu.group_id FROM group_user gu WHERE gu.user_id = :userId", nativeQuery = true)
             List<UUID> findGroupsWhereUserIsMember(UUID userId);
