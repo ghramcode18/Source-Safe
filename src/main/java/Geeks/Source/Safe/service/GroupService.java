@@ -69,8 +69,8 @@ public class GroupService {
     // Create a new group
     public String createGroup(String username, String groupName) {
         User creator = userRepository.findByUserName(username).orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-        Group group1 = groupRepository.findByName(groupName).get();
-        if (group1==null)
+        Optional<Group> group1 = groupRepository.findByName(groupName);
+        if (!group1.isPresent())
         {
             Group group = Group.builder().name(groupName).creator(creator).build();
             groupRepository.save(group);
