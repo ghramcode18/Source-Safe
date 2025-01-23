@@ -26,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/auth/**","/logs/**","/api/v1/groups/**","/files/**","/check-in").permitAll() // Use requestMatchers instead of antMatchers
+                .requestMatchers("/auth/**","/logs/**","/api/v1/groups/**","/files/**","/check-in","/admin/**").permitAll() // Use requestMatchers instead of antMatchers
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

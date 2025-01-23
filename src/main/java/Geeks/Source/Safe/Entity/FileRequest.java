@@ -15,6 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
+@Data
 @Table(name = "file_requests")
 public class FileRequest {
         @Id
