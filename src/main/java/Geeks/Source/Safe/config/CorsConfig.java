@@ -14,7 +14,7 @@ public class CorsConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-        .allowedOrigins("http://localhost:5173", "https://teal-gorilla-464304.hostingersite.com")
+        .allowedOrigins("http://localhost:5173","http://localhost:56790/", "https://teal-gorilla-464304.hostingersite.com")
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("Content-Type", "Authorization", "X-Requested-With", "Accept")
         .exposedHeaders("Access-Control-Allow-Headers", "Authorization")
